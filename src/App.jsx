@@ -1,38 +1,20 @@
 import { useRef, useState, useCallback } from "react";
 import Places from "./components/Places.jsx";
 import Modal from "./components/Modal.jsx";
-import { useEffect } from "react";
 import DeleteConfirmation from "./components/DeleteConfirmation.jsx";
 import logoImg from "./assets/logo.png";
 import AvailablePlaces from "./components/AvailablePlaces.jsx";
 import { updateUserPlaces, fetchUserPlaces } from "./http.js";
 import ErrorPage from "./components/ErrorPage.jsx";
+import { useFetch } from "./hooks/useFetch.js";
 
 function App() {
   const selectedPlace = useRef();
-
-  const [userPlaces, setUserPlaces] = useState([]);
-  const [isFetching, setIsFetching] = useState(false);
-  const [error, setError] = useState();
   const [modalIsOpen, setModalIsOpen] = useState(false);
 
-  // Sayfa yüklendiğinde sunucudan yerleri getir
-  useEffect(() => {
-    async function loadUserPlaces() {
-      setIsFetching(true);
-      try {
-        const places = await fetchUserPlaces();
-        console.log("Fetched user places:", places); // API cevabını kontrol et
 
-        setUserPlaces(places);
-      } catch (error) {
-        setError({message: error.message || "Failed to fetch user places"});
-      }
-      setIsFetching(false);
-    }
+  const {data: userPlaces, setData: setUserPlaces, isFetching, error} = useFetch(fetchUserPlaces, []); // Custom Hook
 
-    loadUserPlaces(); // call loading data
-  }, []); // Boş dependency array, bu effect'in sadece bir kez çalışmasını sağlar
 
   function handleStartRemovePlace(place) {
     setModalIsOpen(true);
@@ -88,7 +70,7 @@ function App() {
 
       setModalIsOpen(false);
     },
-    [userPlaces]
+    [userPlaces, setUserPlaces]
   );
 
   return (
